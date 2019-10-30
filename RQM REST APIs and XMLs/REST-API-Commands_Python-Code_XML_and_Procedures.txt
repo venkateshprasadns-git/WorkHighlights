@@ -1,0 +1,105 @@
+Procedure to Bulk Download TestCaseResults (with metadata) in XML format from Rational Quality Manager using REST APIs : 
+
+1) First install RQM URL Utility. This is a command line java utility is used to access RQM's test artifacts via REST APIs. This is 
+downloadable from jazz.net
+Unzip the downloaded zip file into a local folder.
+2) Prepare the REST API command. We will have to go through the documentation on how to build the command in the following link
+https://jazz.net/wiki/bin/view/Main/RqmApi
+  a) Get the project alias name using the following link
+     https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/projects
+  b) Now get the token ID. To get the token ID, use the below link
+     https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+     <project alias name>+%28Quality+Management%29/executionresult
+     Token ID is usually in the first few 4 to 5 lines
+  c) Build the API link using the following
+     "https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+     <project alias name>+%28Quality+Management%29/executionresult?abbreviate=false&token=_01AbcDEFGhiJ1kLM2nOp2q&page=1"
+     This URL will be sufficient to download one single page using the RESTClient. 
+  d) But if the results have multiple pages, then pagination will come into picture and this has to be handled using RQM URL Utility 
+     to bulk download all the pages at once. To do that, we need to prefix the below to the URL built.
+     java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user <user_name> 
+     -password <password> -filepath C:\Users\VenkateshPrasad\Desktop\CLMXML\test\TCR_XML1 -url 
+  e) Once the command is fully prepared, open command prompt from windows start menu (open the command prompt by right clicking on 
+     the cmd prompt and run as admin)
+     cd to the directory where the utility zip file was unzipped. 
+     Example, cd C:\Users\VenkateshPrasad\Downloads\RQM-Extras-RQMUrlUtil-6.0.6-ifix003
+     From this location, run the prepared commands
+     C:\Users\VenkateshPrasad\Downloads\RQM-Extras-RQMUrlUtil-6.0.6-ifix003> java -Dcom.ibm.team.repository.transport.client.protocol=
+     "TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user <user_name> -password <password> -filepath C:\Users\VenkateshPrasad\
+     Desktop\CLMXML\test\TCR_XML1 -url "https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/
+     resources/<project alias name>+%28Quality+Management%29/executionresult?abbreviate=false&token=_01AbcDEFGhiJ1kLM2nOp2q&page=1"
+
+
+Examples of a few REST API commands built which are ready to use in the RQM URL utility : 
+
+Test Execution Results : 
+java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user <user_name> 
+-password <password> -filepath C:\Users\VenkateshPrasad\Desktop\CLMXML\test\TCR_XML1 -url 
+"https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+<project alias name>+%28Quality+Management%29/executionresult?abbreviate=false&token=_01AbcDEFGhiJ1kLM2nOp2q&page=1"
+
+Test Script : 
+java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user <user_name> 
+-password <password> -filepath C:\Users\VenkateshPrasad\Desktop\CLMXML\test\TS_XML0 -url  
+"https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+<project alias name>+%28Quality+Management%29/executionscript?abbreviate=false&token=_01HijKLMNopQ5sTU6w0y8z&page=0"
+
+Test Case Execution Record :
+java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user <user_name> 
+-password <password> -filepath C:\Users\VenkateshPrasad\Desktop\CLMXML\test\TCER_XML0 -url  
+https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+<project alias name>+%28Quality+Management%29/executionworkitem?abbreviate=false&token=_01AbcDEFGhiJ1kLqP_-KNDnA&page=0"
+
+TestCase History :
+https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/history?resourceId=resources/
+<project alias name>%20(Quality%20Management)/testcase/urn:com.ibm.rqm:testcase:25592
+
+TestScript History : 
+https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/history?resourceId=resources/
+<project alias name>%20(Quality%20Management)/testscript/urn:com.ibm.rqm:testscript:37929
+
+TestCaseExecutionRecord History :
+https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/history?resourceId=resources/
+<project alias name>%20(Quality%20Management)/executionworkitem/urn:com.ibm.rqm:executionworkitem:44437
+
+TestCaseResult History : 
+https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/history?resourceId=resources/
+<project alias name>%20(Quality%20Management)/executionresult/urn:com.ibm.rqm:executionresult:148204
+
+
+Now that the commands are ready, we have to take care of the pagination. For example, if project A has 20k test case results 
+across 500 pages (each page having 50 results) which are to be downloaded, then we will need to issue 500 commands to the 
+RQM URL utility. So, the best way to do that is to use python script and prepare a file containing all 500 commands.
+Once the file is ready, we can execute the file as below.
+
+C:\Users\VenkateshPrasad\Downloads\RQM-Extras-RQMUrlUtil-6.0.6-ifix003> output.cmd
+
+
+Python scripts : 
+
+For Test Case Results : 
+
+variable1=-1
+variable2='''java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user 
+<user_name> -password <password> -filepath C:\\Users\\VenkateshPrasad\\Desktop\\CLMXML\\test\\SOF\\TCR\\TCR_XML'''
+variable3=''' -url "https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+<project alias name>+%%28Quality+Management%%29/executionresult?abbreviate=false&token=_05WokDNYEemK2tHX5vJt2g&page='''
+variable4='"'
+while variable1<=575:
+        variable1=variable1+1
+        concatenate1 = f'{variable2}{variable1}{variable3}{variable1}{variable4}'
+        print(concatenate1, file=open("output.cmd", "a"))
+
+
+For Test Script :
+
+variable1=-1
+variable2='''java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user 
+<user_name> -password <password> -filepath C:\\Users\\VenkateshPrasad\\Desktop\\CLMXML\\test\\SOF\\TS\\TS_XML'''
+variable3=''' -url "https://<server name:port number>/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/
+<project alias name>+%%28Quality+Management%%29/testscript?abbreviate=false&token=_zdkQQORCEemLUqP_-KNDnA&page='''
+variable4='"'
+while variable1<=489:
+        variable1=variable1+1
+        concatenate1 = f'{variable2}{variable1}{variable3}{variable1}{variable4}'
+        print(concatenate1, file=open("output1.cmd", "a"))
