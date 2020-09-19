@@ -1,0 +1,17 @@
+
+To see the RQMURLUtility command examples
+https://jazz.net/forum/questions/206593/feed-url-to-download-all-the-test-scripts-with-steps-for-a-particular-test-case
+
+To see the project alias
+https://www-01.ibm.com/support/docview.wss?uid=swg21579099
+
+When we get "Unable to create SSL_TLS context, trying SSLv3 " error
+https://jazz.net/forum/questions/246071/rqmurlutility-working-with-tls-12
+
+Also check readme.txt file which has good info about setting a few different parameters
+
+Check the below link which talks about abbreviating the results
+https://www-01.ibm.com/support/docview.wss?uid=swg21473152
+
+Main RQM API page
+https://jazz.net/wiki/bin/view/Main/RqmApi
