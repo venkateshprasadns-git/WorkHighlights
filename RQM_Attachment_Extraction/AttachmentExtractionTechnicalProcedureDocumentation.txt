@@ -9,11 +9,21 @@ MS Excel and Notepad
 
 First download the XMLs having attachment details. XML files extractions has to be done at two different levels, one at the Project Level and the Other at the Test Case Result Level. Project Level XML Files are the Super Sets and the Test Case Result Level XML files are a sub set of the Project Level XML files (from the attachment details point of view).
 
-1) The first set of XML files to be extracted are at the Project Level.
+We can use the below API Link for getting the XML representation of project area names
+https://clm.rat.itshost.se/qm/service/com.ibm.rqm.integration.service.IIntegrationService/projects
+
+We can use the below API Link for getting XMLs of attachments at the Projectz level
+https://clm.rat.itshost.se/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/SSCM+%28Quality+Management%29/attachment?abbreviate=false
+
+We can use the below API Link for getting XMLs of Test Case Results
+https://clm.rat.itshost.se/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/SSCM+%28Quality+Management%29/executionresult?abbreviate=false
+
+
+1) The first set of XML files to be extracted are at the Project Level. Please use the file "RQM_REST_API_Attachment_Command_Builder.py" to build the .cmd file which will have series of commands that can be executed using windows batch script 
 2) Using the Python Script "SSCM_ProjectLevel_AttachmentID_Extractor.py", Parse the Project Level XML files which are stored at "SSCM_Attachments_XMLs" directory to get the 'Attachment ID' and 'Attachment Name' of all attachments at project level. This script also redirects the script output to the file called "SSCM_XMLParsed_Output_ProjectLevel.xls". 
 3) Open the excel file "SSCM_XMLParsed_Output_ProjectLevel.xls" and do a text to column using excel Data tab and then copy the entire data into a new excel sheet called "SSCM_XMLParsed_Output.xlsx". Rename the excel sheet from Sheet1 to "Project_Level"
 
-4) The second set of XML files to be extracted are at the Test Case Results Level.
+4) The second set of XML files to be extracted are at the Test Case Results Level. Please use the file "RQM_REST_API_TCR_Command_Builder.py" to build the .cmd file which will have series of commands that can be executed using windows batch script
 5) Now, using the Python Script "SSCM_TCRStepLevel_AttachmentID_Extractor.py" Parse the TCR level XML files which are stored at "SSCM_TCR_XMLs" directory to get the 'Test Case Result ID', 'Test Step Number' and 'Attachment ID'. This script also redirects the output to the file called "SSCM_XMLParsed_Output_TCRStepLevel.xls".
 6) Open the excel file "SSCM_XMLParsed_Output_TCRStepLevel.xls" and do a text to column using excel Data tab and then copy the entire data into a new sheet inside the excel file "SSCM_XMLParsed_Output.xlsx" which was created in step2). Rename the excel sheet from Sheet1 to "TCR_StepLevel"
 
@@ -30,14 +40,16 @@ b) Now the "TCR_StepLevel" sheet has TCRID in ColumnA, StepIndex in ColumnB, Att
 What this formula does : This formula is attaching the attachment ID and the attachment names together with a - inbetween them (Something like this 90499- TC01-206889-Mandatory.png)
 Drag the E1 formula till the end to copy the formula to all the cells in the column E
 
-10) Now start the bulk download of all attachments at the project area level. For this, we can use the combination of batch script and java util. 
+10) Do the same for Noteslevel where attachment names are there but attachment IDs are to be found.
+
+11) Now start the bulk download of all attachments at the project area level. For this, we can use the combination of batch script and java util. 
 Using the below command, we need to build one command for each attachment (I used Python for building the commands for multiple attachments, but you can use any other ways)
 java -Dcom.ibm.team.repository.transport.client.protocol="TLSv1.2" -Xmx1024m -jar RQMUrlUtility.jar -command GET -user clms.business.support -password <.....> -filepath C:\Users\VenkateshPrasad\Desktop\SSCM_RQM\SSCM_Attachments_Dump\90499 -url  "https://clm.rat.itshost.se/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/SSCM+%%28Quality+Management%%29/attachment/urn:com.ibm.rqm:attachment:90499
 Once the batch script is ready, it should look something like this "SSCM_ProjectLevel_AttachmentExtractor_Commands.cmd"
 
-Run this in the UrlUtility to do a bulk download of all attachments at project level into your local machine. 
+12) Run this in the UrlUtility to do a bulk download of all attachments at project level into your local machine. 
 Once the command fully runs, all the attachments should now be downloaded into your local machine. I have run it for SSCM project and I can see 869 attachments downloaded into my local folder "C:\Users\VenkateshPrasad\Desktop\SSCM_RQM\SSCM_Attachments_Dump"
 
-10) Now that we have all the needed data in the "SSCM_XMLParsed_Output.xlsx" file, we can use the python script "Create_TCRID_Folder.py" to create all the individual TCR_ID folders
+13) Now that we have all the needed data in the "SSCM_XMLParsed_Output.xlsx" file, we can use the python script "Create_TCRID_Folder.py" to create all the individual TCR_ID folders
 
-11) Once this is done, we can use the python script "Move_TCRAttachments_to_TCRDirectories.py" to move the attachments from master dump folder to the individual TCR_ID folders
+14) Once this is done, we can use the python script "Move_TCRAttachments_to_TCRDirectories.py" to move the attachments from master dump folder to the individual TCR_ID folders
